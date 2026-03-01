@@ -4,6 +4,7 @@ enum BuildOrderParser {
     /// Parses a Spawning Tool–style build order text.
     ///
     /// Supported line formats:
+    ///   Tab-separated: `14\t0:17\tSupply Depot\tOptional note`  (Spawning Tool export)
     ///   Supply-based:  `14 - Supply Depot`  or  `14: Barracks`
     ///   Time-based:    `1:30 - Scout`        or  `0:22 - SCV`
     ///   Mixed (both):  `14 / 1:10 - Supply Depot`
@@ -17,10 +18,12 @@ enum BuildOrderParser {
     private static func parseLine(_ line: String) -> BuildStep? {
         guard !line.isEmpty, !line.hasPrefix("#") else { return nil }
 
+        // Tab-separated: "14\t0:17\tSupply Depot\tNote"
+        if let step = parseTabLine(line)    { return step }
         // Mixed: "14 / 1:10 - Action"
-        if let step = parseMixedLine(line) { return step }
+        if let step = parseMixedLine(line)  { return step }
         // Time-only: "1:30 - Action"
-        if let step = parseTimeLine(line)  { return step }
+        if let step = parseTimeLine(line)   { return step }
         // Supply-only: "14 - Action"
         if let step = parseSupplyLine(line) { return step }
 
@@ -28,6 +31,23 @@ enum BuildOrderParser {
     }
 
     // MARK: - Line parsers
+
+    private static func parseTabLine(_ line: String) -> BuildStep? {
+        // Pattern: "14\t0:17\tSupply Depot\tOptional note"
+        // Fields are tab-separated; note column is optional.
+        guard line.contains("\t") else { return nil }
+        let pattern = #"^(\d{1,3})\t\s*(\d+):(\d{2})\t\s*(.+?)(?:\t\s*(.+))?$"#
+        guard let groups = regexGroups(pattern: pattern, in: line), groups.count >= 4 else { return nil }
+
+        guard let supply = Int(groups[0]), supply <= 200 else { return nil }
+        let minutes = Double(groups[1]) ?? 0
+        let seconds = Double(groups[2]) ?? 0
+        let action  = groups[3].trimmingCharacters(in: .whitespaces)
+        let note    = groups.count == 5 ? groups[4].trimmingCharacters(in: .whitespaces) : nil
+
+        return BuildStep(supply: supply, time: minutes * 60 + seconds, action: action,
+                         note: note?.isEmpty == false ? note : nil)
+    }
 
     private static func parseMixedLine(_ line: String) -> BuildStep? {
         // Pattern: "14 / 1:30 - Action" or "14/1:30 - Action"

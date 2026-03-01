@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     let gameState = GameStateViewModel()
     let tracker = BuildOrderTracker()

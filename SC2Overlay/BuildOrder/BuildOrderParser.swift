@@ -1,16 +1,21 @@
 import Foundation
 
 enum BuildOrderParser {
-    /// Parses a Spawning Tool–style build order text.
+    /// Parses a build order from any supported format, detecting it automatically.
     ///
-    /// Supported line formats:
-    ///   Tab-separated: `14\t0:17\tSupply Depot\tOptional note`  (Spawning Tool export)
-    ///   Supply-based:  `14 - Supply Depot`  or  `14: Barracks`
-    ///   Time-based:    `1:30 - Scout`        or  `0:22 - SCV`
-    ///   Mixed (both):  `14 / 1:10 - Supply Depot`
-    ///   Comments:      lines starting with `#` are ignored
+    /// Supported formats:
+    ///   **SALT**:         `$title|author|desc|~<encoded>`  (compact sharing format)
+    ///   **Tab-separated**: `14\t0:17\tSupply Depot\tNote`  (Spawning Tool export)
+    ///   **Mixed**:        `14 / 1:10 - Supply Depot`
+    ///   **Time-only**:    `1:30 - Scout`
+    ///   **Supply-only**:  `14 - Supply Depot`  or  `14: Barracks`
+    ///   **Comments**:     lines starting with `#` are ignored
     static func parse(text: String) -> [BuildStep] {
-        text
+        if SALTDecoder.isSALT(text) {
+            return SALTDecoder.decode(text)
+        }
+
+        return text
             .components(separatedBy: .newlines)
             .compactMap { parseLine($0.trimmingCharacters(in: .whitespaces)) }
     }

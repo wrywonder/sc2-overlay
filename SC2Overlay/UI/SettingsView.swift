@@ -14,14 +14,14 @@ struct SettingsView: View {
             // MARK: Build Order Input
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Paste your Spawning Tool build order below.")
+                    Text("Paste a build order — text, tab-separated, or SALT encoded.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
                     Text("Supported formats:")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
-                    Text("  Supply:  14 - Supply Depot\n  Time:    1:30 - Scout\n  Mixed:   14 / 1:10 - Supply Depot")
+                    Text("  SALT:    $title|author||~…\n  Tabs:    14⇥0:17⇥Supply Depot\n  Mixed:   14 / 1:10 - Supply Depot\n  Supply:  14 - Supply Depot\n  Time:    1:30 - Scout")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundStyle(.secondary)
                         .padding(8)

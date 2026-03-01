@@ -3,14 +3,14 @@ name: SC2Overlay
 options:
   bundleIdPrefix: com.wrywonder
   deploymentTarget:
-    macOS: "13.0"
+    macOS: "14.0"
   xcodeVersion: "15"
   generateEmptyDirectories: true
 
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: ""
@@ -19,7 +19,7 @@ targets:
   SC2Overlay:
     type: application
     platform: macOS
-    deploymentTarget: "13.0"
+    deploymentTarget: "14.0"
     sources:
       - path: SC2Overlay
     resources:
@@ -38,7 +38,7 @@ targets:
         CFBundleIdentifier: com.wrywonder.sc2-overlay
         CFBundleVersion: "1"
         CFBundleShortVersionString: "0.1.0"
-        LSMinimumSystemVersion: "13.0"
+        LSMinimumSystemVersion: "14.0"
         NSPrincipalClass: NSApplication
         # Hide from dock — lives in menu bar
         LSUIElement: true

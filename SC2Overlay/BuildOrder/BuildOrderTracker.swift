@@ -6,6 +6,7 @@ enum TrackingMode: String, CaseIterable, Codable {
     case time   = "Time"
 }
 
+@MainActor
 class BuildOrderTracker: ObservableObject {
     @Published var steps: [BuildStep] = []
     @Published var currentIndex: Int = 0
@@ -21,23 +22,17 @@ class BuildOrderTracker: ObservableObject {
 
     func load(text: String) {
         let parsed = BuildOrderParser.parse(text: text)
-        DispatchQueue.main.async {
-            self.steps = parsed
-            self.currentIndex = 0
-        }
+        steps = parsed
+        currentIndex = 0
     }
 
     func reset() {
-        DispatchQueue.main.async {
-            self.currentIndex = 0
-        }
+        currentIndex = 0
     }
 
     func clear() {
-        DispatchQueue.main.async {
-            self.steps = []
-            self.currentIndex = 0
-        }
+        steps = []
+        currentIndex = 0
     }
 
     // MARK: - Update (called from polling)
@@ -71,7 +66,7 @@ class BuildOrderTracker: ObservableObject {
         }
 
         if newIndex != currentIndex {
-            DispatchQueue.main.async { self.currentIndex = newIndex }
+            currentIndex = newIndex
         }
     }
 }

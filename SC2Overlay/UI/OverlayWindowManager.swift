@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 class OverlayWindowManager {
     private var window: NSWindow?
     private let gameState: GameStateViewModel

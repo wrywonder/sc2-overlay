@@ -1,0 +1,47 @@
+name: SC2Overlay
+
+options:
+  bundleIdPrefix: com.wrywonder
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  SC2Overlay:
+    type: application
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - path: SC2Overlay
+    resources:
+      - SC2Overlay/Resources/Assets.xcassets
+    entitlements:
+      path: SC2Overlay.entitlements
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.wrywonder.sc2-overlay
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      INFOPLIST_FILE: SC2Overlay/Resources/Info.plist
+    info:
+      path: SC2Overlay/Resources/Info.plist
+      properties:
+        CFBundleName: SC2 Overlay
+        CFBundleDisplayName: SC2 Overlay
+        CFBundleIdentifier: com.wrywonder.sc2-overlay
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "0.1.0"
+        LSMinimumSystemVersion: "13.0"
+        NSPrincipalClass: NSApplication
+        # Hide from dock — lives in menu bar
+        LSUIElement: true
+        # Allow HTTP connections to localhost (SC2 Client API)
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true

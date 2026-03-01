@@ -1,0 +1,393 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1180BF9A621FE2EF73233A16 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18E53A06367C75AC35482065 /* Assets.xcassets */; };
+		2C3EBA50C0465C3D75A1169F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E887C94558B7A07032193FE /* SettingsView.swift */; };
+		65240C8AF6ACA9FF947BB103 /* BuildOrderTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26591D16D67127EAFC52FC3B /* BuildOrderTracker.swift */; };
+		7054888916AB7C85828AFDF0 /* OverlayWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7600811856C515ACBC156085 /* OverlayWindowManager.swift */; };
+		7BC6E13352B4DF674CE0E623 /* SC2APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D289D24860C0718E29E5130 /* SC2APIClient.swift */; };
+		8C1320F61DC6F6F879F3C576 /* SC2OverlayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6944B96B06B55A37C0B59688 /* SC2OverlayApp.swift */; };
+		90ADD427BA6B75D8E5F8F263 /* BuildOrderParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FDF4D755C61FD77DDD8142 /* BuildOrderParser.swift */; };
+		940F46E0B1D159F61E5EF89B /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361F8B6152A4B22F0341F353 /* OverlayView.swift */; };
+		BC383CAB87802E52B28ACCD0 /* GameStateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C7D7542B080786DF8F149E /* GameStateViewModel.swift */; };
+		F2E9B475A5FA03E37111698D /* BuildStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648D3328278C02DC588841D3 /* BuildStep.swift */; };
+		F8529C9FDCAD5BBA0E045777 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94F894FA1764ED482CDB892 /* AppDelegate.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		065BEDCFF317B29935ED1E53 /* SC2Overlay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SC2Overlay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		18E53A06367C75AC35482065 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		26591D16D67127EAFC52FC3B /* BuildOrderTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildOrderTracker.swift; sourceTree = "<group>"; };
+		361F8B6152A4B22F0341F353 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
+		52C7D7542B080786DF8F149E /* GameStateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStateViewModel.swift; sourceTree = "<group>"; };
+		648D3328278C02DC588841D3 /* BuildStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildStep.swift; sourceTree = "<group>"; };
+		6944B96B06B55A37C0B59688 /* SC2OverlayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SC2OverlayApp.swift; sourceTree = "<group>"; };
+		7600811856C515ACBC156085 /* OverlayWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindowManager.swift; sourceTree = "<group>"; };
+		7E887C94558B7A07032193FE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		8D289D24860C0718E29E5130 /* SC2APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SC2APIClient.swift; sourceTree = "<group>"; };
+		E4FDF4D755C61FD77DDD8142 /* BuildOrderParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildOrderParser.swift; sourceTree = "<group>"; };
+		E94F894FA1764ED482CDB892 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		EFBC72E5F3B71CA9B152BF46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		19A936BA937971DF4E494D56 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				361F8B6152A4B22F0341F353 /* OverlayView.swift */,
+				7600811856C515ACBC156085 /* OverlayWindowManager.swift */,
+				7E887C94558B7A07032193FE /* SettingsView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		49D514469887B80E899C9848 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				E94F894FA1764ED482CDB892 /* AppDelegate.swift */,
+				6944B96B06B55A37C0B59688 /* SC2OverlayApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		6397A2DA818A2D5FF952E8C3 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				52C7D7542B080786DF8F149E /* GameStateViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		6FB2926C405967793E4D1E1D /* API */ = {
+			isa = PBXGroup;
+			children = (
+				8D289D24860C0718E29E5130 /* SC2APIClient.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		71C654C181A4B6A151221C42 = {
+			isa = PBXGroup;
+			children = (
+				7E68150BC2B87D9476628112 /* SC2Overlay */,
+				C43B30B1A3CCB7DF41CBBC19 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7E68150BC2B87D9476628112 /* SC2Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				6FB2926C405967793E4D1E1D /* API */,
+				49D514469887B80E899C9848 /* App */,
+				D2BFC1CC2333BEE8EF847CA8 /* BuildOrder */,
+				D10BC66889E4EE3DA42DF51B /* Resources */,
+				19A936BA937971DF4E494D56 /* UI */,
+				6397A2DA818A2D5FF952E8C3 /* ViewModels */,
+			);
+			path = SC2Overlay;
+			sourceTree = "<group>";
+		};
+		C43B30B1A3CCB7DF41CBBC19 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				065BEDCFF317B29935ED1E53 /* SC2Overlay.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D10BC66889E4EE3DA42DF51B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				18E53A06367C75AC35482065 /* Assets.xcassets */,
+				EFBC72E5F3B71CA9B152BF46 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D2BFC1CC2333BEE8EF847CA8 /* BuildOrder */ = {
+			isa = PBXGroup;
+			children = (
+				E4FDF4D755C61FD77DDD8142 /* BuildOrderParser.swift */,
+				26591D16D67127EAFC52FC3B /* BuildOrderTracker.swift */,
+				648D3328278C02DC588841D3 /* BuildStep.swift */,
+			);
+			path = BuildOrder;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8665F78E7E8EE8F36FA7FFA5 /* SC2Overlay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF26ADEE629733AB3E6EBB0A /* Build configuration list for PBXNativeTarget "SC2Overlay" */;
+			buildPhases = (
+				6F416426727D7DD4133F1E0B /* Sources */,
+				1B3598258E3C3639B9D7843E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SC2Overlay;
+			packageProductDependencies = (
+			);
+			productName = SC2Overlay;
+			productReference = 065BEDCFF317B29935ED1E53 /* SC2Overlay.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5C21D6E0CC224A0EB0ECF114 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					8665F78E7E8EE8F36FA7FFA5 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 6790CFBFEABC152DB207CCF9 /* Build configuration list for PBXProject "SC2Overlay" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 71C654C181A4B6A151221C42;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8665F78E7E8EE8F36FA7FFA5 /* SC2Overlay */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1B3598258E3C3639B9D7843E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1180BF9A621FE2EF73233A16 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6F416426727D7DD4133F1E0B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8529C9FDCAD5BBA0E045777 /* AppDelegate.swift in Sources */,
+				90ADD427BA6B75D8E5F8F263 /* BuildOrderParser.swift in Sources */,
+				65240C8AF6ACA9FF947BB103 /* BuildOrderTracker.swift in Sources */,
+				F2E9B475A5FA03E37111698D /* BuildStep.swift in Sources */,
+				BC383CAB87802E52B28ACCD0 /* GameStateViewModel.swift in Sources */,
+				940F46E0B1D159F61E5EF89B /* OverlayView.swift in Sources */,
+				7054888916AB7C85828AFDF0 /* OverlayWindowManager.swift in Sources */,
+				7BC6E13352B4DF674CE0E623 /* SC2APIClient.swift in Sources */,
+				8C1320F61DC6F6F879F3C576 /* SC2OverlayApp.swift in Sources */,
+				2C3EBA50C0465C3D75A1169F /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		06431E4FC0342D108B3683A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SC2Overlay.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SC2Overlay/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.wrywonder.sc2-overlay";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0AAA061AFCCF7C6482461879 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		5AA147E7A828DFF8C4542B5D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		CACD3FF640E0C920AA9E94B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SC2Overlay.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SC2Overlay/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.wrywonder.sc2-overlay";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6790CFBFEABC152DB207CCF9 /* Build configuration list for PBXProject "SC2Overlay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0AAA061AFCCF7C6482461879 /* Debug */,
+				5AA147E7A828DFF8C4542B5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EF26ADEE629733AB3E6EBB0A /* Build configuration list for PBXNativeTarget "SC2Overlay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				06431E4FC0342D108B3683A8 /* Debug */,
+				CACD3FF640E0C920AA9E94B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5C21D6E0CC224A0EB0ECF114 /* Project object */;
+}

@@ -65,3 +65,58 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 }
+
+/// Lightweight per-game-session file logger.
+/// No console output while playing.
+final class SessionLogger {
+    private let directoryURL: URL
+    private var fileHandle: FileHandle?
+    private let iso = ISO8601DateFormatter()
+
+    init() {
+        let fm = FileManager.default
+        let appSupport = (try? fm.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )) ?? URL(fileURLWithPath: NSTemporaryDirectory())
+
+        let base = appSupport
+            .appendingPathComponent("SC2Overlay", isDirectory: true)
+            .appendingPathComponent("SessionLogs", isDirectory: true)
+
+        try? fm.createDirectory(at: base, withIntermediateDirectories: true)
+        directoryURL = base
+    }
+
+    func startSession() {
+        endSession()
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        let stamp = formatter.string(from: Date())
+        let url = directoryURL.appendingPathComponent("session_\(stamp).log")
+        FileManager.default.createFile(atPath: url.path, contents: nil)
+        fileHandle = try? FileHandle(forWritingTo: url)
+        append("Session started")
+    }
+
+    func append(_ message: String) {
+        guard let handle = fileHandle else { return }
+        let line = "[\(iso.string(from: Date()))] \(message)\n"
+        guard let data = line.data(using: .utf8) else { return }
+        do {
+            try handle.seekToEnd()
+            try handle.write(contentsOf: data)
+        } catch {
+            // Intentionally swallow to avoid impacting gameplay.
+        }
+    }
+
+    func endSession() {
+        append("Session ended")
+        try? fileHandle?.close()
+        fileHandle = nil
+    }
+}

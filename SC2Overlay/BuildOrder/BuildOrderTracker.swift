@@ -8,12 +8,26 @@ enum TrackingMode: String, CaseIterable, Codable {
 
 class BuildOrderTracker: ObservableObject {
     @Published var steps: [BuildStep] = []
-    @Published var currentIndex: Int = 0
-    @Published var trackingMode: TrackingMode = .supply
+    /// Index of last completed step, or -1 if no step has been completed yet.
+    @Published var currentIndex: Int = -1
+    @Published var trackingMode: TrackingMode = .supply {
+        didSet {
+            UserDefaults.standard.set(trackingMode.rawValue, forKey: Self.trackingModeKey)
+        }
+    }
+
+    private static let trackingModeKey = "trackingMode"
+
+    init() {
+        if let raw = UserDefaults.standard.string(forKey: Self.trackingModeKey),
+           let mode = TrackingMode(rawValue: raw) {
+            trackingMode = mode
+        }
+    }
 
     // MARK: - Derived state
 
-    var completedSteps: [BuildStep] { Array(steps.prefix(currentIndex)) }
+    var completedSteps: [BuildStep] { Array(steps.prefix(max(currentIndex + 1, 0))) }
     var currentStep: BuildStep?    { steps[safe: currentIndex] }
     var nextStep: BuildStep?       { steps[safe: currentIndex + 1] }
 
@@ -23,20 +37,20 @@ class BuildOrderTracker: ObservableObject {
         let parsed = BuildOrderParser.parse(text: text)
         DispatchQueue.main.async {
             self.steps = parsed
-            self.currentIndex = 0
+            self.currentIndex = -1
         }
     }
 
     func reset() {
         DispatchQueue.main.async {
-            self.currentIndex = 0
+            self.currentIndex = -1
         }
     }
 
     func clear() {
         DispatchQueue.main.async {
             self.steps = []
-            self.currentIndex = 0
+            self.currentIndex = -1
         }
     }
 
@@ -46,7 +60,7 @@ class BuildOrderTracker: ObservableObject {
     func update(supply: Int, time: TimeInterval) {
         guard !steps.isEmpty else { return }
 
-        var newIndex = 0
+        var newIndex = -1
         for (i, step) in steps.enumerated() {
             let triggered: Bool
             switch trackingMode {

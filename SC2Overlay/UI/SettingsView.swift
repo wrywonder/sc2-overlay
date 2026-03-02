@@ -4,7 +4,7 @@ struct SettingsView: View {
     @EnvironmentObject var gameState: GameStateViewModel
     @EnvironmentObject var tracker: BuildOrderTracker
 
-    @State private var buildOrderText: String = ""
+    @AppStorage("buildOrderText") private var buildOrderText: String = ""
     @State private var portText: String = "6119"
     @State private var showParseResult: Bool = false
     @State private var parsedCount: Int = 0
@@ -21,7 +21,7 @@ struct SettingsView: View {
                     Text("Supported formats:")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
-                    Text("  Supply:  14 - Supply Depot\n  Time:    1:30 - Scout\n  Mixed:   14 / 1:10 - Supply Depot")
+                    Text("  Supply:  14 - Supply Depot\n  Time:    1:30 - Scout\n  Mixed:   14 / 1:10 - Supply Depot\n  SALT:    SALT:14|1:10|Supply Depot")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundStyle(.secondary)
                         .padding(8)
@@ -102,6 +102,7 @@ struct SettingsView: View {
                     TextField("6119", text: $portText)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 70)
+                        .textFieldStyle(.roundedBorder)
                         .onSubmit { applyPort() }
                 }
 
@@ -109,7 +110,7 @@ struct SettingsView: View {
                     Circle()
                         .fill(gameState.isInGame ? .green : .red)
                         .frame(width: 8, height: 8)
-                    Text(gameState.isInGame ? "Connected — game active" : "Waiting for SC2…")
+                    Text(gameState.connectionStatus.rawValue)
                         .foregroundStyle(.secondary)
                         .font(.caption)
                 }

@@ -5,11 +5,13 @@ class OverlayWindowManager {
     private var window: NSWindow?
     private let gameState: GameStateViewModel
     private let tracker: BuildOrderTracker
+    private var keepOnTopTimer: Timer?
 
     init(gameState: GameStateViewModel, tracker: BuildOrderTracker) {
         self.gameState = gameState
         self.tracker   = tracker
         createWindow()
+        startKeepOnTopTimer()
     }
 
     private func createWindow() {
@@ -33,12 +35,20 @@ class OverlayWindowManager {
             defer:       false
         )
 
-        win.level              = .floating
+        // Use screenSaver level (1000) to sit above fullscreen apps / Game Mode.
+        // .floating (3) is too low — macOS fullscreen spaces render above it.
+        win.level              = NSWindow.Level(rawValue:
+            Int(CGWindowLevelForKey(.screenSaverWindow)))
         win.isOpaque           = false
         win.backgroundColor    = .clear
         win.hasShadow          = false
         win.ignoresMouseEvents = true   // fully click-through — SC2 gets all input
-        win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        win.collectionBehavior = [
+            .canJoinAllSpaces,       // visible on every Space / fullscreen Space
+            .fullScreenAuxiliary,    // allowed alongside fullscreen apps
+            .stationary,             // ignored by Mission Control / Exposé
+            .ignoresCycle,           // skip in Cmd-Tab
+        ]
 
         let root = OverlayView()
             .environmentObject(gameState)
@@ -50,8 +60,22 @@ class OverlayWindowManager {
         self.window = win
     }
 
+    /// Periodically re-assert front ordering so the overlay survives
+    /// focus grabs from SC2 or macOS window-server shuffles.
+    private func startKeepOnTopTimer() {
+        keepOnTopTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.window?.orderFrontRegardless()
+            }
+        }
+    }
+
     func setVisible(_ visible: Bool) {
         if visible { window?.orderFrontRegardless() }
         else       { window?.orderOut(nil) }
+    }
+
+    deinit {
+        keepOnTopTimer?.invalidate()
     }
 }

@@ -21,7 +21,7 @@ struct SettingsView: View {
                     Text("Supported formats:")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
-                    Text("  Supply:  14 - Supply Depot\n  Time:    1:30 - Scout\n  Mixed:   14 / 1:10 - Supply Depot\n  SALT:    SALT:14|1:10|Supply Depot")
+                    Text("  Table:   14  0:14  SCV  (copy from Spawning Tool)\n  Supply:  14 - Supply Depot\n  Time:    1:30 - Scout\n  Mixed:   14 / 1:10 - Supply Depot\n  SALT:    Paste compact encoding from Spawning Tool")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundStyle(.secondary)
                         .padding(8)

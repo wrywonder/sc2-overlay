@@ -17,8 +17,10 @@ class BuildOrderTracker: ObservableObject {
     }
 
     private static let trackingModeKey = "trackingMode"
+    private let logger: SessionLogger
 
-    init() {
+    init(logger: SessionLogger) {
+        self.logger = logger
         if let raw = UserDefaults.standard.string(forKey: Self.trackingModeKey),
            let mode = TrackingMode(rawValue: raw) {
             trackingMode = mode
@@ -35,6 +37,10 @@ class BuildOrderTracker: ObservableObject {
 
     func load(text: String) {
         let parsed = BuildOrderParser.parse(text: text)
+        logger.append("BuildOrder loaded: \(parsed.count) steps parsed (mode=\(trackingMode.rawValue))")
+        if let first = parsed.first {
+            logger.append("  first step: supply=\(first.supply ?? -1) time=\(first.time ?? -1) action=\"\(first.action)\"")
+        }
         DispatchQueue.main.async {
             self.steps = parsed
             self.currentIndex = -1
@@ -42,12 +48,14 @@ class BuildOrderTracker: ObservableObject {
     }
 
     func reset() {
+        logger.append("BuildOrder reset")
         DispatchQueue.main.async {
             self.currentIndex = -1
         }
     }
 
     func clear() {
+        logger.append("BuildOrder cleared")
         DispatchQueue.main.async {
             self.steps = []
             self.currentIndex = -1
@@ -85,6 +93,10 @@ class BuildOrderTracker: ObservableObject {
         }
 
         if newIndex != currentIndex {
+            let oldIndex = currentIndex
+            let stepName = steps[safe: newIndex]?.action ?? "n/a"
+            let nextName = steps[safe: newIndex + 1]?.action ?? "(end)"
+            logger.append("Tracker step \(oldIndex)→\(newIndex): completed=\"\(stepName)\" next=\"\(nextName)\" supply=\(supply) time=\(Int(time))s")
             DispatchQueue.main.async { self.currentIndex = newIndex }
         }
     }

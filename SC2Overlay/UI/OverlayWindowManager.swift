@@ -5,17 +5,22 @@ class OverlayWindowManager {
     private var window: NSWindow?
     private let gameState: GameStateViewModel
     private let tracker: BuildOrderTracker
+    private let logger: SessionLogger
     private var keepOnTopTimer: Timer?
 
-    init(gameState: GameStateViewModel, tracker: BuildOrderTracker) {
+    init(gameState: GameStateViewModel, tracker: BuildOrderTracker, logger: SessionLogger) {
         self.gameState = gameState
         self.tracker   = tracker
+        self.logger    = logger
         createWindow()
         startKeepOnTopTimer()
     }
 
     private func createWindow() {
-        guard let screen = NSScreen.main else { return }
+        guard let screen = NSScreen.main else {
+            logger.append("OverlayWindow: NSScreen.main is nil — cannot create window")
+            return
+        }
 
         // Default position: top-left, clear of the SC2 command card
         let width: CGFloat  = 320
@@ -58,6 +63,10 @@ class OverlayWindowManager {
         win.orderFrontRegardless()
 
         self.window = win
+
+        logger.append("OverlayWindow created: frame=\(win.frame)")
+        logger.append("  screen=\"\(screen.localizedName)\" visibleFrame=\(screen.visibleFrame) fullFrame=\(screen.frame)")
+        logger.append("  windowLevel=\(win.level.rawValue) (screenSaver=\(NSWindow.Level.screenSaver.rawValue))")
     }
 
     /// Periodically re-assert front ordering so the overlay survives

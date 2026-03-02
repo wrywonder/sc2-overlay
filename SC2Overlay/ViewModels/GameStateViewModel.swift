@@ -29,12 +29,13 @@ class GameStateViewModel: ObservableObject {
 
     private var client: SC2APIClient
     private var pollTask: Task<Void, Never>?
-    private let logger = SessionLogger()
+    private let logger: SessionLogger
     private var inSession = false
     private var lastLoggedSecond: Int = -1
     private var lastLoggedSupply: Int = -1
 
-    init() {
+    init(logger: SessionLogger) {
+        self.logger = logger
         let savedPort = UserDefaults.standard.integer(forKey: Self.portKey)
         let initialPort = savedPort == 0 ? 6119 : savedPort
         self.port = initialPort
@@ -69,55 +70,91 @@ class GameStateViewModel: ObservableObject {
     // MARK: - Poll
 
     private func poll() async {
+        // ── Phase 1: Is the game running? ─────────────────────
+        // Only this phase can set isInGame to false.
+        let ui: SC2UIState
         do {
-            let ui = try await client.fetchUI()
-            isInGame = ui.isInGame
-            connectionStatus = ui.isInGame ? .gameActive : .notInGame
-
-            guard ui.isInGame else {
-                score = nil
-                players = []
-                if inSession {
-                    logger.endSession()
-                    inSession = false
-                }
-                return
-            }
-
-            if !inSession {
-                logger.startSession()
-                inSession = true
-                lastLoggedSecond = -1
-                lastLoggedSupply = -1
-                logger.append("Polling active on port \(port)")
-            }
-
-            async let gameTask  = client.fetchGame()
-            async let scoreTask = client.fetchScore()
-            let (game, newScore) = try await (gameTask, scoreTask)
-
-            displayTime = game.displayTime
-            players     = game.players
-            score       = newScore
-
-            let supply = newScore.player.first?.scoreValueFoodUsed ?? 0
-            let currentSecond = Int(game.displayTime)
-            if currentSecond != lastLoggedSecond || supply != lastLoggedSupply {
-                logger.append("Tick supply=\(supply) time=\(currentSecond)s")
-                lastLoggedSecond = currentSecond
-                lastLoggedSupply = supply
-            }
-            onUpdate?(supply, game.displayTime)
+            ui = try await client.fetchUI()
         } catch {
+            // Cannot reach SC2 at all (URLError) or bad config.
+            if isInGame {
+                logger.append("/ui FAIL — lost connection: \(error.localizedDescription)")
+            }
             isInGame = false
             score = nil
             players = []
-            connectionStatus = (error as? URLError) != nil ? .waitingForSC2 : .badConfiguration
+            connectionStatus = (error is URLError) ? .waitingForSC2 : .badConfiguration
             if inSession {
-                logger.append("Poll error: \(error.localizedDescription)")
                 logger.endSession()
                 inSession = false
             }
+            return
+        }
+
+        let wasInGame = isInGame
+        isInGame = ui.isInGame
+        connectionStatus = ui.isInGame ? .gameActive : .notInGame
+
+        if wasInGame != ui.isInGame {
+            logger.append("/ui isInGame changed: \(wasInGame) → \(ui.isInGame)  activeScreens=\(ui.activeScreens)")
+        }
+
+        guard ui.isInGame else {
+            score = nil
+            players = []
+            if inSession {
+                logger.endSession()
+                inSession = false
+            }
+            return
+        }
+
+        if !inSession {
+            logger.startSession()
+            inSession = true
+            lastLoggedSecond = -1
+            lastLoggedSupply = -1
+            logger.append("Polling active on port \(port)")
+        }
+
+        // ── Phase 2: Fetch game data ──────────────────────────
+        // Errors here are logged but do NOT set isInGame = false.
+        // /game and /score are independent — one can fail without
+        // affecting the other.
+
+        var gameTime: TimeInterval?
+        var supply: Int = 0
+
+        // /game
+        do {
+            let game = try await client.fetchGame()
+            displayTime = game.displayTime
+            players     = game.players
+            gameTime    = game.displayTime
+        } catch {
+            logger.append("/game error (overlay stays visible): \(error.localizedDescription)")
+        }
+
+        // /score (independent of /game success)
+        do {
+            let newScore = try await client.fetchScore()
+            score  = newScore
+            supply = newScore.player.first?.scoreValueFoodUsed ?? 0
+        } catch {
+            logger.append("/score error (using supply=0 fallback): \(error.localizedDescription)")
+        }
+
+        // Call tracker whenever we have time data.
+        // Supply may be 0 if /score failed — tracker will still
+        // advance time-based steps.
+        if let t = gameTime {
+            let currentSecond = Int(t)
+            if currentSecond != lastLoggedSecond || supply != lastLoggedSupply {
+                logger.append("tick supply=\(supply) time=\(currentSecond)s")
+                lastLoggedSecond = currentSecond
+                lastLoggedSupply = supply
+            }
+            onUpdate?(supply, t)
         }
     }
 }

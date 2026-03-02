@@ -3,11 +3,13 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var gameState: GameStateViewModel
     @EnvironmentObject var tracker: BuildOrderTracker
+    @EnvironmentObject var logger: SessionLogger
 
     @AppStorage("buildOrderText") private var buildOrderText: String = ""
     @State private var portText: String = "6119"
     @State private var showParseResult: Bool = false
     @State private var parsedCount: Int = 0
+    @State private var logCopied: Bool = false
 
     var body: some View {
         Form {
@@ -117,9 +119,13 @@ struct SettingsView: View {
             } header: {
                 Text("SC2 Client API")
             } footer: {
-                Text("Add `gameClientRequestPort=6119` to your Variables.txt, or launch SC2 with `-gameClientRequestPort 6119`.")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Add `gameClientRequestPort=6119` to your Variables.txt, or launch SC2 with `-gameClientRequestPort 6119`.")
+                    Text("SC2 must use \"Windowed (Fullscreen)\" display mode for the overlay to appear. True fullscreen captures the display exclusively and blocks all overlays.")
+                        .bold()
+                }
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
             }
 
             // MARK: Loaded steps preview
@@ -148,9 +154,69 @@ struct SettingsView: View {
                     Text("Loaded steps (\(tracker.steps.count))")
                 }
             }
+
+            // MARK: Debug Log
+            Section {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 2) {
+                            ForEach(Array(logger.recentLines.enumerated()), id: \.offset) { idx, line in
+                                Text(line)
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundStyle(.primary)
+                                    .textSelection(.enabled)
+                                    .id(idx)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(4)
+                    }
+                    .frame(height: 160)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(.separator, lineWidth: 1)
+                    )
+                    .onChange(of: logger.recentLines.count) { _ in
+                        if let last = logger.recentLines.indices.last {
+                            proxy.scrollTo(last, anchor: .bottom)
+                        }
+                    }
+                }
+
+                HStack {
+                    Button("Copy Log to Clipboard") {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(
+                            logger.recentLines.joined(separator: "\n"),
+                            forType: .string
+                        )
+                        logCopied = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            logCopied = false
+                        }
+                    }
+
+                    if logCopied {
+                        Label("Copied!", systemImage: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                            .font(.caption)
+                    }
+
+                    Spacer()
+
+                    Button("Clear Log") {
+                        logger.recentLines.removeAll()
+                    }
+                    .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("Debug Log (\(logger.recentLines.count) lines)")
+            }
         }
         .formStyle(.grouped)
-        .frame(width: 440)
+        .frame(width: 480)
         .padding()
         .onAppear { portText = "\(gameState.port)" }
     }

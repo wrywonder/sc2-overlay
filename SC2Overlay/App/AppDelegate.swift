@@ -3,18 +3,29 @@ import SwiftUI
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
-    let gameState = GameStateViewModel()
-    let tracker = BuildOrderTracker()
+    let logger: SessionLogger
+    let gameState: GameStateViewModel
+    let tracker: BuildOrderTracker
 
     private var statusItem: NSStatusItem?
     private var overlayManager: OverlayWindowManager?
     private var settingsWindow: NSWindow?
 
+    override init() {
+        let log = SessionLogger()
+        self.logger = log
+        self.gameState = GameStateViewModel(logger: log)
+        self.tracker = BuildOrderTracker(logger: log)
+        super.init()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory) // hide from dock
 
         setupMenuBar()
-        overlayManager = OverlayWindowManager(gameState: gameState, tracker: tracker)
+        overlayManager = OverlayWindowManager(gameState: gameState,
+                                               tracker: tracker,
+                                               logger: logger)
 
         // Forward game state updates to tracker
         gameState.onUpdate = { [weak self] supply, time in
@@ -53,11 +64,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let view = SettingsView()
                 .environmentObject(gameState)
                 .environmentObject(tracker)
+                .environmentObject(logger)
             let controller = NSHostingController(rootView: view)
             let window = NSWindow(contentViewController: controller)
             window.title = "SC2 Overlay — Settings"
-            window.styleMask = [.titled, .closable]
-            window.setContentSize(NSSize(width: 440, height: 520))
+            window.styleMask = [.titled, .closable, .resizable]
+            window.setContentSize(NSSize(width: 480, height: 700))
             window.isReleasedWhenClosed = false
             settingsWindow = window
         }
@@ -67,12 +79,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-/// Lightweight per-game-session file logger.
-/// No console output while playing.
-final class SessionLogger {
+// MARK: - Session Logger
+
+/// Lightweight per-game-session file logger with in-memory buffer
+/// for the in-app debug log viewer.
+final class SessionLogger: ObservableObject {
     private let directoryURL: URL
     private var fileHandle: FileHandle?
     private let iso = ISO8601DateFormatter()
+    private let maxLines = 500
+
+    /// Recent log lines visible in Settings → Debug Log.
+    @Published var recentLines: [String] = []
 
     init() {
         let fm = FileManager.default
@@ -104,20 +122,34 @@ final class SessionLogger {
     }
 
     func append(_ message: String) {
-        guard let handle = fileHandle else { return }
-        let line = "[\(iso.string(from: Date()))] \(message)\n"
-        guard let data = line.data(using: .utf8) else { return }
-        do {
-            try handle.seekToEnd()
-            try handle.write(contentsOf: data)
-        } catch {
-            // Intentionally swallow to avoid impacting gameplay.
+        let line = "[\(iso.string(from: Date()))] \(message)"
+
+        // File logging (only when a session is active)
+        if let handle = fileHandle,
+           let data = (line + "\n").data(using: .utf8) {
+            do {
+                try handle.seekToEnd()
+                try handle.write(contentsOf: data)
+            } catch {
+                // Intentionally swallow to avoid impacting gameplay.
+            }
+        }
+
+        // In-memory buffer (always active)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.recentLines.append(line)
+            if self.recentLines.count > self.maxLines {
+                self.recentLines.removeFirst(self.recentLines.count - self.maxLines)
+            }
         }
     }
 
     func endSession() {
-        append("Session ended")
-        try? fileHandle?.close()
-        fileHandle = nil
+        if fileHandle != nil {
+            append("Session ended")
+            try? fileHandle?.close()
+            fileHandle = nil
+        }
     }
 }

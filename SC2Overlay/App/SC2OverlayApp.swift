@@ -10,6 +10,7 @@ struct SC2OverlayApp: App {
             SettingsView()
                 .environmentObject(appDelegate.gameState)
                 .environmentObject(appDelegate.tracker)
+                .environmentObject(appDelegate.logger)
         }
     }
 }

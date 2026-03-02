@@ -85,7 +85,7 @@ Spawning Tool build orders can be:
 ```
 sc2-overlay/
 ├── SC2Overlay.xcodeproj
-└── src/
+└── SC2Overlay/
     ├── App/
     │   ├── SC2OverlayApp.swift       # @main, AppDelegate
     │   └── OverlayWindowManager.swift # NSWindow setup (click-through, floating)

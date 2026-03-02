@@ -34,8 +34,8 @@ Or launch SC2 with the flag: `-gameClientRequestPort 6119`
 ```
 sc2-overlay/
 ├── docs/               # Architecture decisions and API notes
-├── src/                # Application source code
-└── assets/             # Icons, fonts, images
+├── SC2Overlay/         # Swift source code
+└── SC2Overlay.xcodeproj
 ```
 
 ## Planned Features
@@ -50,7 +50,13 @@ sc2-overlay/
 
 ## Development
 
-> Tech stack TBD. Candidates: Swift/SwiftUI (native), Electron/TypeScript, Python/PyQt.
+Native Swift + SwiftUI macOS app.
+
+Build-order parser supports standard supply/time formats and SALT-encoded lines such as:
+
+```
+SALT:14|1:10|Supply Depot
+```
 
 ## License
 

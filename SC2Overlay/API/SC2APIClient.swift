@@ -1,5 +1,29 @@
 import Foundation
 
+enum SC2APIError: LocalizedError {
+    case invalidResponse
+    case badStatus(Int, String?)
+    case apiError(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidResponse:
+            return "Invalid response from SC2 Client API."
+        case let .badStatus(status, body):
+            if let body, !body.isEmpty {
+                return "SC2 Client API returned HTTP \(status): \(body)"
+            }
+            return "SC2 Client API returned HTTP \(status)."
+        case let .apiError(message):
+            return "SC2 Client API error: \(message)"
+        }
+    }
+}
+
+private struct SC2APIErrorEnvelope: Decodable {
+    let error: String
+}
+
 // MARK: - Response models
 
 struct SC2UIState: Decodable {
@@ -69,7 +93,21 @@ actor SC2APIClient {
         guard let url = URL(string: "http://localhost:\(port)\(path)") else {
             throw URLError(.badURL)
         }
-        let (data, _) = try await session.data(from: url)
+
+        let (data, response) = try await session.data(from: url)
+        guard let http = response as? HTTPURLResponse else {
+            throw SC2APIError.invalidResponse
+        }
+
+        guard (200...299).contains(http.statusCode) else {
+            let body = String(data: data, encoding: .utf8)
+            throw SC2APIError.badStatus(http.statusCode, body)
+        }
+
+        if let envelope = try? JSONDecoder().decode(SC2APIErrorEnvelope.self, from: data) {
+            throw SC2APIError.apiError(envelope.error)
+        }
+
         return try JSONDecoder().decode(T.self, from: data)
     }
 }

@@ -36,8 +36,9 @@ class GameStateViewModel: ObservableObject {
 
     init() {
         let savedPort = UserDefaults.standard.integer(forKey: Self.portKey)
-        self.port = savedPort == 0 ? 6119 : savedPort
-        self.client = SC2APIClient(port: self.port)
+        let initialPort = savedPort == 0 ? 6119 : savedPort
+        self.port = initialPort
+        self.client = SC2APIClient(port: initialPort)
         startPolling()
     }
 

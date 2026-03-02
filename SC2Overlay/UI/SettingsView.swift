@@ -25,7 +25,7 @@ struct SettingsView: View {
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundStyle(.secondary)
                         .padding(8)
-                        .background(.background.secondary)
+                        .background(Color(nsColor: .controlBackgroundColor))
                         .clipShape(RoundedRectangle(cornerRadius: 6))
 
                     TextEditor(text: $buildOrderText)

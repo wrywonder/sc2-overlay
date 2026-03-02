@@ -16,6 +16,7 @@
 		90ADD427BA6B75D8E5F8F263 /* BuildOrderParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FDF4D755C61FD77DDD8142 /* BuildOrderParser.swift */; };
 		940F46E0B1D159F61E5EF89B /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361F8B6152A4B22F0341F353 /* OverlayView.swift */; };
 		BC383CAB87802E52B28ACCD0 /* GameStateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C7D7542B080786DF8F149E /* GameStateViewModel.swift */; };
+		D7A1F3E2C4B809FA12E6D4A1 /* SALTDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C5E91B7D2F48C6E0B13572 /* SALTDecoder.swift */; };
 		F2E9B475A5FA03E37111698D /* BuildStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648D3328278C02DC588841D3 /* BuildStep.swift */; };
 		F8529C9FDCAD5BBA0E045777 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94F894FA1764ED482CDB892 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -31,6 +32,7 @@
 		7600811856C515ACBC156085 /* OverlayWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindowManager.swift; sourceTree = "<group>"; };
 		7E887C94558B7A07032193FE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8D289D24860C0718E29E5130 /* SC2APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SC2APIClient.swift; sourceTree = "<group>"; };
+		A3C5E91B7D2F48C6E0B13572 /* SALTDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SALTDecoder.swift; sourceTree = "<group>"; };
 		E4FDF4D755C61FD77DDD8142 /* BuildOrderParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildOrderParser.swift; sourceTree = "<group>"; };
 		E94F894FA1764ED482CDB892 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EFBC72E5F3B71CA9B152BF46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				E4FDF4D755C61FD77DDD8142 /* BuildOrderParser.swift */,
 				26591D16D67127EAFC52FC3B /* BuildOrderTracker.swift */,
 				648D3328278C02DC588841D3 /* BuildStep.swift */,
+				A3C5E91B7D2F48C6E0B13572 /* SALTDecoder.swift */,
 			);
 			path = BuildOrder;
 			sourceTree = "<group>";
@@ -195,6 +198,7 @@
 				90ADD427BA6B75D8E5F8F263 /* BuildOrderParser.swift in Sources */,
 				65240C8AF6ACA9FF947BB103 /* BuildOrderTracker.swift in Sources */,
 				F2E9B475A5FA03E37111698D /* BuildStep.swift in Sources */,
+				D7A1F3E2C4B809FA12E6D4A1 /* SALTDecoder.swift in Sources */,
 				BC383CAB87802E52B28ACCD0 /* GameStateViewModel.swift in Sources */,
 				940F46E0B1D159F61E5EF89B /* OverlayView.swift in Sources */,
 				7054888916AB7C85828AFDF0 /* OverlayWindowManager.swift in Sources */,

@@ -16,41 +16,45 @@ struct OverlayView: View {
 
     private var overlayContent: some View {
         VStack(alignment: .leading, spacing: 6) {
-            // Completed / current step (dimmed)
+            // Most recently completed step (dimmed)
             if let current = tracker.currentStep {
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green.opacity(0.6))
-                    Text(current.action)
-                        .foregroundStyle(.white.opacity(0.45))
-                        .strikethrough(color: .white.opacity(0.3))
-                    Spacer()
-                    if let label = current.triggerLabel(mode: tracker.trackingMode) {
-                        Text(label)
-                            .foregroundStyle(.white.opacity(0.3))
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    }
-                }
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                stepRow(
+                    icon: "checkmark.circle.fill",
+                    iconColor: .green.opacity(0.6),
+                    step: current,
+                    textColor: .white.opacity(0.45),
+                    labelColor: .white.opacity(0.3),
+                    fontSize: 12,
+                    strikethrough: true
+                )
             }
 
             Divider().overlay(.white.opacity(0.12))
 
-            // Next step (highlighted)
+            // Next step (highlighted — the one the player should do now)
             if let next = tracker.nextStep {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.right.circle.fill")
-                        .foregroundStyle(.orange)
-                    Text(next.action)
-                        .foregroundStyle(.white)
-                    Spacer()
-                    if let label = next.triggerLabel(mode: tracker.trackingMode) {
-                        Text(label)
-                            .foregroundStyle(.orange.opacity(0.85))
-                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    }
+                stepRow(
+                    icon: "arrow.right.circle.fill",
+                    iconColor: .orange,
+                    step: next,
+                    textColor: .white,
+                    labelColor: .orange.opacity(0.85),
+                    fontSize: 14,
+                    strikethrough: false
+                )
+
+                // Look-ahead: 2 more upcoming steps (dimmer)
+                ForEach(tracker.upcomingSteps) { step in
+                    stepRow(
+                        icon: "circle",
+                        iconColor: .white.opacity(0.25),
+                        step: step,
+                        textColor: .white.opacity(0.5),
+                        labelColor: .white.opacity(0.35),
+                        fontSize: 12,
+                        strikethrough: false
+                    )
                 }
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
             } else {
                 HStack(spacing: 6) {
                     Image(systemName: "flag.checkered")
@@ -83,6 +87,37 @@ struct OverlayView: View {
                 .fill(.black.opacity(0.68))
                 .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 2)
         )
+    }
+
+    private func stepRow(
+        icon: String,
+        iconColor: Color,
+        step: BuildStep,
+        textColor: Color,
+        labelColor: Color,
+        fontSize: CGFloat,
+        strikethrough: Bool
+    ) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(iconColor)
+            Group {
+                if strikethrough {
+                    Text(step.action)
+                        .strikethrough(color: .white.opacity(0.3))
+                } else {
+                    Text(step.action)
+                }
+            }
+            .foregroundStyle(textColor)
+            Spacer()
+            if let label = step.triggerLabel(mode: tracker.trackingMode) {
+                Text(label)
+                    .foregroundStyle(labelColor)
+                    .font(.system(size: max(fontSize - 3, 10), weight: .medium, design: .monospaced))
+            }
+        }
+        .font(.system(size: fontSize, weight: fontSize >= 14 ? .semibold : .medium, design: .rounded))
     }
 
     private func formatTime(_ seconds: TimeInterval) -> String {

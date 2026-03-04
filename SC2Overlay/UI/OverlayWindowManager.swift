@@ -16,9 +16,10 @@ class OverlayWindowManager {
     private func createWindow() {
         guard let screen = NSScreen.main else { return }
 
-        // Default position: top-left, clear of the SC2 command card
+        // Default position: top-left, clear of the SC2 command card.
+        // Height is flexible — SwiftUI content drives the size via .intrinsicContentSize.
         let width: CGFloat  = 320
-        let height: CGFloat = 110
+        let height: CGFloat = 220
         let margin: CGFloat = 20
         let frame = CGRect(
             x: margin,
@@ -34,18 +35,24 @@ class OverlayWindowManager {
             defer:       false
         )
 
-        win.level              = .floating
+        // Use a high window level so the overlay appears above SC2 in
+        // windowed-fullscreen / borderless mode. .screenSaver is the
+        // highest standard level and reliably sits above game windows.
+        win.level              = .init(rawValue: NSWindow.Level.screenSaver.rawValue + 1)
         win.isOpaque           = false
         win.backgroundColor    = .clear
         win.hasShadow          = false
         win.ignoresMouseEvents = true   // fully click-through — SC2 gets all input
         win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
-        let root = OverlayView()
-            .environmentObject(gameState)
-            .environmentObject(tracker)
-
-        win.contentView = NSHostingView(rootView: root)
+        let hostingView = NSHostingView(rootView:
+            OverlayView()
+                .environmentObject(gameState)
+                .environmentObject(tracker)
+        )
+        // Let SwiftUI size the hosting view to fit its content.
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        win.contentView = hostingView
         win.orderFrontRegardless()
 
         self.window = win

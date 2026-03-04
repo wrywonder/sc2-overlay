@@ -20,6 +20,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         gameState.onUpdate = { [weak self] supply, time in
             self?.tracker.update(supply: supply, time: time)
         }
+
+        // Reset build order progress when a new game starts
+        gameState.onGameStart = { [weak self] in
+            self?.tracker.reset()
+        }
     }
 
     // MARK: - Menu Bar

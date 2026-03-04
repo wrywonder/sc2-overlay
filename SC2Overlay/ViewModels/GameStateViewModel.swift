@@ -13,6 +13,8 @@ class GameStateViewModel: ObservableObject {
 
     /// Called each poll cycle with (currentSupply, displayTime).
     var onUpdate: ((Int, TimeInterval) -> Void)?
+    /// Called when a new game is detected (isInGame transitions false → true).
+    var onGameStart: (() -> Void)?
 
     private var client: SC2APIClient
     private var pollTask: Task<Void, Never>?
@@ -44,7 +46,13 @@ class GameStateViewModel: ObservableObject {
     private func poll() async {
         do {
             let ui = try await client.fetchUI()
+            let wasInGame = isInGame
             isInGame = ui.isInGame
+
+            // Detect new game start (false → true) and reset the tracker.
+            if ui.isInGame && !wasInGame {
+                onGameStart?()
+            }
 
             guard ui.isInGame else { return }
 

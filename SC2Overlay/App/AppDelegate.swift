@@ -16,6 +16,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupMenuBar()
         overlayManager = OverlayWindowManager(gameState: gameState, tracker: tracker)
 
+        // Share the session logger so tracker can write to the same log file.
+        tracker.logger = gameState.logger
+
         // Forward game state updates to tracker
         gameState.onUpdate = { [weak self] supply, time in
             self?.tracker.update(supply: supply, time: time)

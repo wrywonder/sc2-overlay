@@ -18,6 +18,9 @@ class BuildOrderTracker: ObservableObject {
 
     private static let trackingModeKey = "trackingMode"
 
+    /// Shared logger injected by AppDelegate after both objects are created.
+    var logger: SessionLogger?
+
     init() {
         if let raw = UserDefaults.standard.string(forKey: Self.trackingModeKey),
            let mode = TrackingMode(rawValue: raw) {
@@ -35,6 +38,13 @@ class BuildOrderTracker: ObservableObject {
 
     func load(text: String) {
         let parsed = BuildOrderParser.parse(text: text)
+        logger?.append("Build order loaded: \(parsed.count) steps (tracking: \(trackingMode.rawValue))")
+        for (i, step) in parsed.enumerated() {
+            var trigger = ""
+            if let s = step.supply { trigger += "supply=\(s)" }
+            if let t = step.time   { trigger += trigger.isEmpty ? "" : " "; trigger += "time=\(Int(t))s" }
+            logger?.append("  Step \(i): \(trigger.isEmpty ? "(no trigger)" : trigger) — \(step.action)")
+        }
         DispatchQueue.main.async {
             self.steps = parsed
             self.currentIndex = -1
@@ -85,6 +95,8 @@ class BuildOrderTracker: ObservableObject {
         }
 
         if newIndex != currentIndex {
+            let stepDesc = steps[safe: newIndex].map { "\"\($0.action)\"" } ?? "none"
+            logger?.append("Step advanced to \(newIndex): \(stepDesc) — supply=\(supply) time=\(Int(time))s")
             DispatchQueue.main.async { self.currentIndex = newIndex }
         }
     }

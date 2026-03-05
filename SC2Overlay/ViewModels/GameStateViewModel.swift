@@ -29,7 +29,7 @@ class GameStateViewModel: ObservableObject {
 
     private var client: SC2APIClient
     private var pollTask: Task<Void, Never>?
-    private let logger = SessionLogger()
+    let logger = SessionLogger()
     private var inSession = false
     private var lastLoggedSecond: Int = -1
     private var lastLoggedSupply: Int = -1
@@ -84,7 +84,8 @@ class GameStateViewModel: ObservableObject {
                 return
             }
 
-            if !inSession {
+            let sessionJustStarted = !inSession
+            if sessionJustStarted {
                 logger.startSession()
                 inSession = true
                 lastLoggedSecond = -1
@@ -95,6 +96,12 @@ class GameStateViewModel: ObservableObject {
             async let gameTask  = client.fetchGame()
             async let scoreTask = client.fetchScore()
             let (game, newScore) = try await (gameTask, scoreTask)
+
+            if sessionJustStarted {
+                for p in game.players {
+                    logger.append("Player \(p.id): \(p.name) (\(p.race)) type=\(p.type)")
+                }
+            }
 
             displayTime = game.displayTime
             players     = game.players

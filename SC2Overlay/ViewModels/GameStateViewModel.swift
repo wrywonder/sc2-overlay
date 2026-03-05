@@ -69,30 +69,53 @@ class GameStateViewModel: ObservableObject {
     // MARK: - Poll
 
     private func poll() async {
+        // Step 1: Check if SC2 is reachable and whether we're in a game.
+        // /ui is the authoritative signal — if it fails, SC2 isn't running.
+        let ui: SC2UIState
         do {
-            let ui = try await client.fetchUI()
-            isInGame = ui.isInGame
-            connectionStatus = ui.isInGame ? .gameActive : .notInGame
-
-            guard ui.isInGame else {
-                score = nil
-                players = []
-                if inSession {
-                    logger.endSession()
-                    inSession = false
-                }
-                return
+            ui = try await client.fetchUI()
+        } catch {
+            isInGame = false
+            score = nil
+            players = []
+            connectionStatus = .waitingForSC2
+            if inSession {
+                logger.append("SC2 unreachable: \(error.localizedDescription)")
+                logger.endSession()
+                inSession = false
             }
+            return
+        }
 
-            let sessionJustStarted = !inSession
-            if sessionJustStarted {
-                logger.startSession()
-                inSession = true
-                lastLoggedSecond = -1
-                lastLoggedSupply = -1
-                logger.append("Polling active on port \(port)")
+        connectionStatus = ui.isInGame ? .gameActive : .notInGame
+
+        guard ui.isInGame else {
+            isInGame = false
+            score = nil
+            players = []
+            if inSession {
+                logger.endSession()
+                inSession = false
             }
+            return
+        }
 
+        // /ui says we're in game — set this unconditionally so the overlay stays visible
+        // even if /game or /score return transient errors during loading.
+        isInGame = true
+
+        let sessionJustStarted = !inSession
+        if sessionJustStarted {
+            logger.startSession()
+            inSession = true
+            lastLoggedSecond = -1
+            lastLoggedSupply = -1
+            logger.append("Polling active on port \(port)")
+        }
+
+        // Step 2: Fetch game details + score. These can fail transiently
+        // (404 during loading screens) without meaning the game ended.
+        do {
             async let gameTask  = client.fetchGame()
             async let scoreTask = client.fetchScore()
             let (game, newScore) = try await (gameTask, scoreTask)
@@ -116,15 +139,9 @@ class GameStateViewModel: ObservableObject {
             }
             onUpdate?(supply, game.displayTime)
         } catch {
-            isInGame = false
-            score = nil
-            players = []
-            connectionStatus = (error as? URLError) != nil ? .waitingForSC2 : .badConfiguration
-            if inSession {
-                logger.append("Poll error: \(error.localizedDescription)")
-                logger.endSession()
-                inSession = false
-            }
+            // /game or /score failed but /ui says we're in game.
+            // This is normal during loading screens — keep the session alive.
+            logger.append("Poll data error (session continues): \(error.localizedDescription)")
         }
     }
 }

@@ -33,6 +33,8 @@ class GameStateViewModel: ObservableObject {
     private var inSession = false
     private var lastLoggedSecond: Int = -1
     private var lastLoggedSupply: Int = -1
+    private var consecutiveDataFailures: Int = 0
+    private var warnedAboutDataFailure = false
 
     init() {
         let savedPort = UserDefaults.standard.integer(forKey: Self.portKey)
@@ -94,6 +96,9 @@ class GameStateViewModel: ObservableObject {
             score = nil
             players = []
             if inSession {
+                if lastLoggedSecond < 0 {
+                    logger.append("Session ended with no game data captured. Check SC2 API configuration (gameClientRequestPort=6119).")
+                }
                 logger.endSession()
                 inSession = false
             }
@@ -110,6 +115,8 @@ class GameStateViewModel: ObservableObject {
             inSession = true
             lastLoggedSecond = -1
             lastLoggedSupply = -1
+            consecutiveDataFailures = 0
+            warnedAboutDataFailure = false
             logger.append("Polling active on port \(port)")
         }
 
@@ -130,6 +137,9 @@ class GameStateViewModel: ObservableObject {
             players     = game.players
             score       = newScore
 
+            consecutiveDataFailures = 0
+            warnedAboutDataFailure = false
+
             let supply = newScore.player.first?.scoreValueFoodUsed ?? 0
             let currentSecond = Int(game.displayTime)
             if currentSecond != lastLoggedSecond || supply != lastLoggedSupply {
@@ -141,7 +151,14 @@ class GameStateViewModel: ObservableObject {
         } catch {
             // /game or /score failed but /ui says we're in game.
             // This is normal during loading screens — keep the session alive.
-            logger.append("Poll data error (session continues): \(error.localizedDescription)")
+            consecutiveDataFailures += 1
+            // ~60 polls * 0.5s = ~30 seconds of continuous failure
+            if consecutiveDataFailures == 60 && !warnedAboutDataFailure {
+                warnedAboutDataFailure = true
+                logger.append("WARNING: /game and /score have failed for ~30s. SC2 may not be configured with gameClientRequestPort=6119 in Variables.txt, or this game mode may not expose API data.")
+            } else if consecutiveDataFailures <= 5 || consecutiveDataFailures % 60 == 0 {
+                logger.append("Poll data error (session continues): \(error.localizedDescription)")
+            }
         }
     }
 }

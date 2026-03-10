@@ -4,7 +4,11 @@ struct SettingsView: View {
     @EnvironmentObject var gameState: GameStateViewModel
     @EnvironmentObject var tracker: BuildOrderTracker
 
+    /// Optional TTS announcer — nil if not wired up.
+    var announcer: BuildOrderAnnouncer?
+
     @AppStorage("buildOrderText") private var buildOrderText: String = ""
+    @AppStorage("ttsEnabled") private var ttsEnabled: Bool = false
     @State private var portText: String = "6119"
     @State private var showParseResult: Bool = false
     @State private var parsedCount: Int = 0
@@ -92,6 +96,20 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
             } header: {
                 Text("Tracking")
+            }
+
+            // MARK: Audio Cues
+            Section {
+                Toggle("Announce build steps (TTS)", isOn: $ttsEnabled)
+                    .onChange(of: ttsEnabled) { newValue in
+                        announcer?.isEnabled = newValue
+                    }
+
+                Text("Speaks the next build step aloud each time you advance. Works in any display mode — no overlay needed.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text("Audio")
             }
 
             // MARK: SC2 API

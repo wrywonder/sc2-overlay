@@ -7,7 +7,7 @@ struct SC2OverlayApp: App {
     var body: some Scene {
         // Settings window — opened from the menu bar
         Settings {
-            SettingsView()
+            SettingsView(announcer: appDelegate.announcer)
                 .environmentObject(appDelegate.gameState)
                 .environmentObject(appDelegate.tracker)
         }

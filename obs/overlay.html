@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SC2 Build Order Overlay</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #fff;
+    overflow: hidden;
+  }
+  #overlay {
+    display: none;
+    width: 300px;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.68);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+  #overlay.visible { display: block; }
+
+  .step-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+  }
+  .step-icon { font-size: 14px; }
+  .step-action { flex: 1; font-size: 13px; }
+  .step-trigger {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .current .step-icon { color: rgba(76, 217, 100, 0.6); }
+  .current .step-action {
+    color: rgba(255, 255, 255, 0.45);
+    text-decoration: line-through;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+  }
+  .current .step-trigger { color: rgba(255, 255, 255, 0.3); }
+
+  .next .step-action { font-weight: 600; font-size: 14px; }
+  .next .step-icon { color: #ff9500; }
+  .next .step-trigger { color: rgba(255, 149, 0, 0.85); }
+
+  .done .step-icon { color: #4cd964; }
+  .done .step-action { color: rgba(255, 255, 255, 0.7); font-size: 13px; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 4px 0;
+  }
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 4px;
+    font-family: "SF Mono", "Menlo", monospace;
+  }
+
+  #waiting {
+    display: none;
+    width: 300px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  #waiting.visible { display: block; }
+</style>
+</head>
+<body>
+
+<div id="waiting" class="visible">Waiting for SC2&hellip;</div>
+<div id="overlay"></div>
+
+<script>
+// =============================================================
+// Configuration — edit these to match your setup
+// =============================================================
+const SC2_API_PORT = 6119;
+const POLL_MS = 500;
+
+// Paste your build order here (one step per line).
+// Supported formats:
+//   "14 - Supply Depot"        (supply-based)
+//   "1:30 - Scout"             (time-based)
+//   "14 / 1:10 - Supply Depot" (supply + time)
+//   Tab-separated Spawning Tool table rows
+const BUILD_ORDER_TEXT = `
+`;
+// =============================================================
+
+const API = `http://localhost:${SC2_API_PORT}`;
+
+// --- Build order parser (mirrors the Swift BuildOrderParser) ---
+function parseBuildOrder(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  const steps = [];
+  for (const line of lines) {
+    let supply = null, time = null, action = line;
+
+    // Tab-delimited: "14\t0:14\tSCV\tnotes"
+    const tabs = line.split('\t');
+    if (tabs.length >= 3) {
+      supply = parseInt(tabs[0], 10) || null;
+      time = parseTime(tabs[1]);
+      action = tabs.slice(2).join(' ').trim();
+      steps.push({ supply, time, action });
+      continue;
+    }
+
+    // Mixed: "14 / 1:10 - Supply Depot"
+    const mixed = line.match(/^(\d+)\s*\/\s*(\d+:\d{2})\s*[-–]\s*(.+)/);
+    if (mixed) {
+      supply = parseInt(mixed[1], 10);
+      time = parseTime(mixed[2]);
+      action = mixed[3].trim();
+      steps.push({ supply, time, action });
+      continue;
+    }
+
+    // Supply: "14 - Supply Depot" or "14: Supply Depot"
+    const supMatch = line.match(/^(\d+)\s*[-–:]\s*(.+)/);
+    if (supMatch && !line.match(/^\d+:\d{2}/)) {
+      supply = parseInt(supMatch[1], 10);
+      action = supMatch[2].trim();
+      steps.push({ supply, time, action });
+      continue;
+    }
+
+    // Time: "1:30 - Scout"
+    const timeMatch = line.match(/^(\d+:\d{2})\s*[-–]\s*(.+)/);
+    if (timeMatch) {
+      time = parseTime(timeMatch[1]);
+      action = timeMatch[2].trim();
+      steps.push({ supply, time, action });
+      continue;
+    }
+
+    // Fallback: treat whole line as an action with no trigger
+    if (action.length > 0) {
+      steps.push({ supply: null, time: null, action });
+    }
+  }
+  return steps;
+}
+
+function parseTime(s) {
+  if (!s) return null;
+  const m = s.match(/^(\d+):(\d{2})$/);
+  if (!m) return null;
+  return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds) % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// --- State ---
+let steps = parseBuildOrder(BUILD_ORDER_TEXT);
+let currentIndex = -1;
+let trackingMode = 'supply'; // 'supply' or 'time'
+
+// --- Tracking ---
+function updateTracker(supply, gameTime) {
+  if (steps.length === 0) return;
+  let newIndex = -1;
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    let triggered = false;
+    if (trackingMode === 'supply') {
+      if (step.supply !== null) triggered = supply >= step.supply;
+      else if (step.time !== null) triggered = gameTime >= step.time;
+    } else {
+      if (step.time !== null) triggered = gameTime >= step.time;
+      else if (step.supply !== null) triggered = supply >= step.supply;
+    }
+    if (triggered) newIndex = i;
+  }
+  currentIndex = newIndex;
+}
+
+// --- Rendering ---
+function triggerLabel(step) {
+  if (trackingMode === 'supply') {
+    if (step.supply !== null) return `@${step.supply}`;
+    if (step.time !== null) return formatTime(step.time);
+  } else {
+    if (step.time !== null) return formatTime(step.time);
+    if (step.supply !== null) return `@${step.supply}`;
+  }
+  return '';
+}
+
+function render(supply, maxSupply, gameTime) {
+  const overlay = document.getElementById('overlay');
+  const waiting = document.getElementById('waiting');
+
+  if (steps.length === 0) {
+    overlay.className = '';
+    waiting.className = 'visible';
+    waiting.textContent = 'No build order loaded. Edit BUILD_ORDER_TEXT in overlay.html.';
+    return;
+  }
+
+  waiting.className = '';
+  overlay.className = 'visible';
+
+  const currentStep = currentIndex >= 0 ? steps[currentIndex] : null;
+  const nextStep = currentIndex + 1 < steps.length ? steps[currentIndex + 1] : null;
+
+  let html = '';
+
+  // Current step (completed)
+  if (currentStep) {
+    html += `<div class="step-row current">
+      <span class="step-icon">&#10003;</span>
+      <span class="step-action">${esc(currentStep.action)}</span>
+      <span class="step-trigger">${esc(triggerLabel(currentStep))}</span>
+    </div>`;
+  }
+
+  html += '<hr class="divider">';
+
+  // Next step
+  if (nextStep) {
+    html += `<div class="step-row next">
+      <span class="step-icon">&#9654;</span>
+      <span class="step-action">${esc(nextStep.action)}</span>
+      <span class="step-trigger">${esc(triggerLabel(nextStep))}</span>
+    </div>`;
+  } else {
+    html += `<div class="step-row done">
+      <span class="step-icon">&#127937;</span>
+      <span class="step-action">Build order complete</span>
+    </div>`;
+  }
+
+  // Status bar
+  html += `<div class="status-bar">
+    <span>${supply}/${maxSupply}</span>
+    <span>${formatTime(gameTime)}</span>
+  </div>`;
+
+  overlay.innerHTML = html;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// --- Polling ---
+async function fetchJSON(path) {
+  const r = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(2000) });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+async function poll() {
+  const overlay = document.getElementById('overlay');
+  const waiting = document.getElementById('waiting');
+
+  try {
+    const ui = await fetchJSON('/ui');
+    const inGame = ui.activeScreens && ui.activeScreens.length === 0;
+
+    if (!inGame) {
+      overlay.className = '';
+      waiting.className = 'visible';
+      waiting.textContent = 'Waiting for game to start\u2026';
+      return;
+    }
+
+    const [game, score] = await Promise.all([fetchJSON('/game'), fetchJSON('/score')]);
+    const supply = score?.player?.[0]?.scoreValueFoodUsed ?? 0;
+    const maxSupply = score?.player?.[0]?.scoreValueFoodMade ?? 0;
+    const gameTime = game?.displayTime ?? 0;
+
+    updateTracker(supply, gameTime);
+    render(supply, maxSupply, gameTime);
+  } catch {
+    overlay.className = '';
+    waiting.className = 'visible';
+    waiting.textContent = 'Waiting for SC2\u2026';
+  }
+}
+
+setInterval(poll, POLL_MS);
+poll();
+</script>
+</body>
+</html>

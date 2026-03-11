@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
@@ -9,6 +10,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var overlayManager: OverlayWindowManager?
     private var settingsWindow: NSWindow?
+    private var menuBarUpdateCancellable: AnyCancellable?
+    private var trackerCancellable: AnyCancellable?
+    private(set) var announcer: BuildOrderAnnouncer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory) // hide from dock
@@ -23,6 +27,62 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         gameState.onUpdate = { [weak self] supply, time in
             self?.tracker.update(supply: supply, time: time)
         }
+
+        // TTS announcer for build step transitions
+        announcer = BuildOrderAnnouncer(tracker: tracker)
+
+        // Update menu bar title when game state or tracker changes
+        startMenuBarUpdates()
+    }
+
+    // MARK: - Menu Bar Live Display
+
+    private func startMenuBarUpdates() {
+        // Combine game state and tracker changes into menu bar title updates
+        menuBarUpdateCancellable = gameState.$isInGame
+            .combineLatest(gameState.$displayTime, gameState.$score)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.updateMenuBarTitle() }
+
+        trackerCancellable = tracker.$currentIndex
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.updateMenuBarTitle() }
+    }
+
+    private func updateMenuBarTitle() {
+        guard let button = statusItem?.button else { return }
+
+        guard gameState.isInGame, !tracker.steps.isEmpty else {
+            // Revert to icon-only when not in game
+            statusItem?.length = NSStatusItem.squareLength
+            button.title = ""
+            button.image = NSImage(systemSymbolName: "gamecontroller.fill",
+                                   accessibilityDescription: "SC2 Overlay")
+            return
+        }
+
+        // Build compact status: "▶ Action @supply | 18/22 | 3:45"
+        var parts: [String] = []
+
+        if let next = tracker.nextStep {
+            let trigger = next.triggerLabel(mode: tracker.trackingMode) ?? ""
+            let triggerSuffix = trigger.isEmpty ? "" : " \(trigger)"
+            parts.append("▶ \(next.action)\(triggerSuffix)")
+        } else {
+            parts.append("✓ Done")
+        }
+
+        if let score = gameState.score?.player.first {
+            parts.append("\(score.scoreValueFoodUsed)/\(score.scoreValueFoodMade)")
+        }
+
+        let m = Int(gameState.displayTime) / 60
+        let s = Int(gameState.displayTime) % 60
+        parts.append(String(format: "%d:%02d", m, s))
+
+        statusItem?.length = NSStatusItem.variableLength
+        button.image = nil
+        button.title = parts.joined(separator: " | ")
     }
 
     // MARK: - Menu Bar
@@ -53,7 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openSettings() {
         if settingsWindow == nil {
-            let view = SettingsView()
+            let view = SettingsView(announcer: announcer)
                 .environmentObject(gameState)
                 .environmentObject(tracker)
             let controller = NSHostingController(rootView: view)

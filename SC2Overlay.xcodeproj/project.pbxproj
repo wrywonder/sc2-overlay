@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1180BF9A621FE2EF73233A16 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18E53A06367C75AC35482065 /* Assets.xcassets */; };
 		2C3EBA50C0465C3D75A1169F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E887C94558B7A07032193FE /* SettingsView.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* BuildOrderAnnouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C6D7E8F9A01B2C3D4E5F60 /* BuildOrderAnnouncer.swift */; };
 		65240C8AF6ACA9FF947BB103 /* BuildOrderTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26591D16D67127EAFC52FC3B /* BuildOrderTracker.swift */; };
 		7054888916AB7C85828AFDF0 /* OverlayWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7600811856C515ACBC156085 /* OverlayWindowManager.swift */; };
 		7BC6E13352B4DF674CE0E623 /* SC2APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D289D24860C0718E29E5130 /* SC2APIClient.swift */; };
@@ -32,11 +33,20 @@
 		7E887C94558B7A07032193FE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8D289D24860C0718E29E5130 /* SC2APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SC2APIClient.swift; sourceTree = "<group>"; };
 		E4FDF4D755C61FD77DDD8142 /* BuildOrderParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildOrderParser.swift; sourceTree = "<group>"; };
+		B5C6D7E8F9A01B2C3D4E5F60 /* BuildOrderAnnouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildOrderAnnouncer.swift; sourceTree = "<group>"; };
 		E94F894FA1764ED482CDB892 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EFBC72E5F3B71CA9B152BF46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		A9B0C1D2E3F4A5B6C7D8E9F0 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				B5C6D7E8F9A01B2C3D4E5F60 /* BuildOrderAnnouncer.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
 		19A936BA937971DF4E494D56 /* UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -85,6 +95,7 @@
 			children = (
 				6FB2926C405967793E4D1E1D /* API */,
 				49D514469887B80E899C9848 /* App */,
+				A9B0C1D2E3F4A5B6C7D8E9F0 /* Audio */,
 				D2BFC1CC2333BEE8EF847CA8 /* BuildOrder */,
 				D10BC66889E4EE3DA42DF51B /* Resources */,
 				19A936BA937971DF4E494D56 /* UI */,
@@ -191,6 +202,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F60718293A4B5C /* BuildOrderAnnouncer.swift in Sources */,
 				F8529C9FDCAD5BBA0E045777 /* AppDelegate.swift in Sources */,
 				90ADD427BA6B75D8E5F8F263 /* BuildOrderParser.swift in Sources */,
 				65240C8AF6ACA9FF947BB103 /* BuildOrderTracker.swift in Sources */,
